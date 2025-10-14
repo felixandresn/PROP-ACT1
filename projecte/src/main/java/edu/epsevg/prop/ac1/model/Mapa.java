@@ -207,9 +207,52 @@ public class Mapa {
      */
     public List<Moviment> getAccionsPossibles() {
         List<Moviment> res = new ArrayList<>();
-        // ===============================================
-        //@TODO: A IMPLEMENTAR !!!!!!
-        // ===============================================
+        
+        // Per cada agent
+        for (int agentId = 1; agentId <= agents.size(); agentId++) {
+            Posicio actual = agents.get(agentId - 1);
+            
+            // Per cada direcció
+            for (Direccio dir : Direccio.values()) {
+                Posicio dest = actual.translate(dir);
+                
+                // Comprovar si el moviment és vàlid
+                int cell = getCell(dest);
+                
+                // No podem anar a una paret
+                if (cell == PARET) continue;
+                
+                // Si és una porta, ha d'estar obrible
+                if (Character.isUpperCase(cell)) {
+                    char door = (char) cell;
+                    if (!portaObrible(door)) continue;
+                }
+                
+                // No pot haver-hi col·lisió amb un altre agent
+                boolean colisio = false;
+                for (int i = 0; i < agents.size(); i++) {
+                    if (i == agentId - 1) continue; // Saltar el propi agent
+                    if (agents.get(i).equals(dest)) {
+                        colisio = true;
+                        break;
+                    }
+                }
+                if (colisio) continue;
+                
+                // Comprovar si recollim una clau
+                boolean recullClau = false;
+                if (Character.isLowerCase(cell)) {
+                    char key = (char) cell;
+                    if (!teClau(key)) {
+                        recullClau = true;
+                    }
+                }
+                
+                // Afegir el moviment vàlid
+                res.add(new Moviment(agentId, dir, recullClau));
+            }
+        }
+        
         return res;
     }
 
@@ -224,21 +267,62 @@ public class Mapa {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Mapa)) return false;
         
-        // ===============================================
-        //@TODO: A IMPLEMENTAR !!!!!!
-        // ===============================================
+        Mapa other = (Mapa) o;
+        
+        // Comparar dimensions
+        if (this.n != other.n || this.m != other.m) return false;
+        
+        // Comparar posicions dels agents
+        if (this.agents.size() != other.agents.size()) return false;
+        for (int i = 0; i < this.agents.size(); i++) {
+            if (!this.agents.get(i).equals(other.agents.get(i))) {
+                return false;
+            }
+        }
+        
+        // Comparar la màscara de claus
+        if (this.clausMask != other.clausMask) return false;
+        
+        // Comparar el grid (només les claus no recollides i portes)
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (this.grid[i][j] != other.grid[i][j]) {
+                    return false;
+                }
+            }
+        }
         
         return true;
     }
 
     @Override
     public int hashCode() {
-        // ===============================================
-        //@TODO: A IMPLEMENTAR !!!!!!
-        // ===============================================
+        int result = 17;
         
-        return 0;
+        // Hash de les posicions dels agents
+        for (Posicio p : agents) {
+            result = 31 * result + p.hashCode();
+        }
+        
+        // Hash de la màscara de claus
+        result = 31 * result + clausMask;
+        
+        // Hash del grid (només les claus no recollides)
+        // Per optimitzar, només considerem les cel·les amb claus minúscules
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (Character.isLowerCase(grid[i][j])) {
+                    result = 31 * result + grid[i][j];
+                    result = 31 * result + i;
+                    result = 31 * result + j;
+                }
+            }
+        }
+        
+        return result;
     }
 
     @Override
