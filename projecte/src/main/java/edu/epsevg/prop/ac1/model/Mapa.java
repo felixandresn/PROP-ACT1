@@ -90,6 +90,7 @@ public class Mapa {
         this.agents = new ArrayList<>();
         for (Posicio p : other.agents) this.agents.add(new Posicio(p.x, p.y));
         this.clausMask = other.clausMask;
+        this.sortida = other.sortida; // ✅ ÚNICA LÍNEA AÑADIDA
     }
 
     /**
@@ -341,6 +342,15 @@ public class Mapa {
         return sortida;
     }
 
+    
+    /**
+ * Obté el valor d'una cel·la específica del grid
+ * @param p la posició
+ * @return el valor de la cel·la (PARET, ESPAI, SORTIDA, o caràcter de clau/porta)
+ */
+    public int getCellValue(Posicio p) {
+        return getCell(p);
+    }
     
     //===================================================================
     // Aquí van les vostres ampliacions (nous mètodes d'utilitat)
