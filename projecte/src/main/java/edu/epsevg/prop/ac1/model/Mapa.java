@@ -19,7 +19,7 @@ import java.util.*;
 public class Mapa {
     private final int n;
     private final int m;
-    private final int[][] grid; // conservem caràcters ordinals o codis
+    public final int[][] grid; // conservem caràcters ordinals o codis
     private final List<Posicio> agents; // agents indexats a partir de 1 (index 0 -> agent 1)
     private int clausMask;
     private Posicio sortida;

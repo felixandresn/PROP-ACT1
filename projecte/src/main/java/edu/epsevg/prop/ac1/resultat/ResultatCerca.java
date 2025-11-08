@@ -17,7 +17,7 @@ import java.util.List;
  * Els mètodes startTime() i stiopTime() ja es criden des del mètode executarIRecollir().
  */
 public class ResultatCerca {
-    private List<Moviment> cami;
+    public List<Moviment> cami;
     private int nodesExplorats;
     private int nodesTallats;
     private int memoriaPic;
