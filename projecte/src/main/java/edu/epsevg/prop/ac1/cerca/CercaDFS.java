@@ -17,18 +17,13 @@ public class CercaDFS extends Cerca {
         Stack<List<Moviment>> caminos = new Stack<>();
         Set<Mapa> visitados = new HashSet<>();
         pila.push(inicial);
-        caminos.push(new ArrayList<>()); // Camino vacío para el estado inicial
-
-        // Actualiza memoria inicial
+        caminos.push(new ArrayList<>()); // Camino estado inicial
         rc.updateMemoria(pila.size() + caminos.size() + visitados.size());
-
         while (!pila.isEmpty()) {
             Mapa actual = pila.pop();
             List<Moviment> caminoActual = caminos.pop();
-
             rc.updateMemoria(pila.size() + caminos.size() + visitados.size());
             rc.incNodesExplorats();
-
             if (actual.esMeta()) {
                 rc.cami = caminoActual;
                 return;
@@ -54,6 +49,4 @@ public class CercaDFS extends Cerca {
             }
         }
     }
-
-
 }
