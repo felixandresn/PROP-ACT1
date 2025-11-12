@@ -9,8 +9,10 @@ import java.util.Set;
 import java.util.Stack;
 
 public class CercaDFS extends Cerca {
+    private static final int MAX_PROFUNDITAT = 50; // Límit DFS
+    
     public CercaDFS(boolean usarLNT) { super(usarLNT); }
-
+    
     @Override
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
         Stack<Mapa> pila = new Stack<>();
@@ -28,6 +30,12 @@ public class CercaDFS extends Cerca {
                 rc.cami = caminoActual;
                 return;
             }
+            
+            // Límit de profunditat 50
+            if (caminoActual.size() >= MAX_PROFUNDITAT) {
+                continue;
+            }
+            
             if (!visitados.contains(actual)) {
                 visitados.add(actual);
                 for (Moviment mov : actual.getAccionsPossibles()) {
