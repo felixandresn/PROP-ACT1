@@ -15,21 +15,22 @@ public class CercaIDS extends Cerca {
     public void ferCerca(Mapa inicial, ResultatCerca rc) {
         // IDS con control de profundidad iterativa
         for (int profMax = 0; profMax <= MAX_PROFUNDITAT; profMax++) {
-            // System.out.println("Probando profundidad: " + profMax);
-            
             Map<Mapa, Integer> lnt = usarLNT ? new HashMap<>() : null;
-            List<Moviment> resultado = dfsLimitadoLNT(inicial, profMax, lnt, rc, 0);
+            List<Moviment> resultado = dfsLimitadoLNT(inicial, profMax, lnt, rc, 0, new ArrayList<>(), inicial);
             
             if (resultado != null) {
                 rc.setCami(resultado);
                 return;
             }
         }
-        
         rc.setCami(null);
     }
     
-    private List<Moviment> dfsLimitadoLNT(Mapa actual, int profMax, Map<Mapa, Integer> lnt, ResultatCerca rc, int profundidad) {
+    private List<Moviment> dfsLimitadoLNT(
+        Mapa actual, int profMax, Map<Mapa, Integer> lnt, 
+        ResultatCerca rc, int profundidad, 
+        List<Moviment> caminoActual, Mapa inicial
+    ) {
         // Actualizar memoria
         int memoriaActual = (lnt != null ? lnt.size() : 0);
         rc.updateMemoria(memoriaActual);
@@ -47,7 +48,6 @@ public class CercaIDS extends Cerca {
         
         // Control de ciclos con LNT
         if (usarLNT && lnt != null) {
-            // Si ya visitamos este estado con igual o menor profundidad, podar
             if (lnt.containsKey(actual)) {
                 int profAnterior = lnt.get(actual);
                 if (profAnterior <= profundidad) {
@@ -55,25 +55,24 @@ public class CercaIDS extends Cerca {
                     return null;
                 }
             }
-            // Registrar/actualizar con la profundidad actual (menor es mejor)
             lnt.put(actual, profundidad);
         }
-        
+
         // Expandir
-        List<Moviment> accions = actual.getAccionsPossibles();
-        for (Moviment mov : accions) {
+        for (Moviment mov : actual.getAccionsPossibles()) {
             try {
                 Mapa siguiente = actual.mou(mov);
                 
-                // Control de ciclos sin LNT (solo en rama actual)
                 boolean esRepetit = false;
                 if (!usarLNT) {
-                    // Verificar si ya está en el camino actual (más complejo, necesitaríamos llevar el camino)
-                    // Por simplicidad, en modo sin LNT confiamos en que el espacio de estados es manejable
+                    // Control de ciclos local, igual que en el DFS
+                    esRepetit = estaEnCamino(inicial, caminoActual, siguiente);
                 }
                 
                 if (!esRepetit) {
-                    List<Moviment> resultado = dfsLimitadoLNT(siguiente, profMax, lnt, rc, profundidad + 1);
+                    List<Moviment> nuevoCamino = new ArrayList<>(caminoActual);
+                    nuevoCamino.add(mov);
+                    List<Moviment> resultado = dfsLimitadoLNT(siguiente, profMax, lnt, rc, profundidad + 1, nuevoCamino, inicial);
                     if (resultado != null) {
                         resultado.add(0, mov);
                         return resultado;
@@ -85,7 +84,20 @@ public class CercaIDS extends Cerca {
                 // Movimiento inválido
             }
         }
-        
         return null;
+    }
+
+    /** Control local de ciclos sin LNT */
+    private boolean estaEnCamino(Mapa inicial, List<Moviment> camino, Mapa objectiu) {
+        try {
+            Mapa aux = inicial;
+            for (Moviment m : camino) {
+                aux = aux.mou(m);
+                if (aux.equals(objectiu)) return true;
+            }
+        } catch (IllegalArgumentException e) {
+            // ignorar
+        }
+        return false;
     }
 }

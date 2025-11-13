@@ -9,6 +9,38 @@ import java.util.*;
  * - Min distancia agente->clave
  * - + MST (Prim con arrays) entre claves
  * - + min clave->salida
+ * 🧠 Heurística Avançada (per A*)
+
+Aquesta heurística combina diverses mesures informatives per estimar de manera eficient la distància mínima fins a la meta. L’objectiu és mantenir la funció h(n) admissible (mai sobreestima el cost real) però més informada que la heurística bàsica.
+
+🔹 Components principals:
+
+Distància mínima agent → clau:
+Es calcula la distància Manhattan més petita entre qualsevol agent i qualsevol clau pendent.
+Serveix per prioritzar els estats on els agents estan més a prop d’obtenir noves claus.
+
+Cost del MST (Minimum Spanning Tree) entre claus:
+Es calcula un arbre d’expansió mínima (algorisme de Prim simplificat) entre totes les claus detectades al mapa.
+Això representa el cost mínim necessari per connectar totes les claus entre si.
+
+Distància mínima clau → sortida:
+Finalment, s’afegeix la distància Manhattan mínima entre qualsevol clau i la sortida (S), que representa el tram final després de recollir totes les claus.
+
+🔹 Fórmula global:
+
+h(n)=min(agent→clau)+MST(claus)+min(clau→sortida)
+🔹 Avantatges:
+
+Molt ràpida: tot es calcula amb distàncies Manhattan i estructures simples (arrays).
+
+Informada: combina informació sobre agents, claus i sortida, millorant la qualitat de la cerca.
+
+Admissible: mai sobreestima el cost real, ja que totes les distàncies són mínimes possibles.
+
+🔹 Complexitat:
+
+El càlcul de la heurística és O(k²) respecte al nombre de claus k, gràcies a la implementació del MST amb arrays.
+És molt eficient i escalable per a mapes grans.
  */
 public class HeuristicaAvancada implements Heuristica {
 
